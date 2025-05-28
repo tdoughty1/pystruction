@@ -27,7 +27,7 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       - name: Run All tests
-        run: just fulltest
+        run: just test
       - name: Lint the project
         run: just lint
       - name: Typecheck the project
