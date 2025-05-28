@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-import typer
+import typer  # type: ignore
 
 from pystruction.commands import (
     initialize_git,

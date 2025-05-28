@@ -1,6 +1,6 @@
 from pathlib import Path
 import subprocess
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, PackageLoader, select_autoescape  # type: ignore
 
 TEMPLATE_ENV = Environment(
     loader=PackageLoader("pystruction"), autoescape=select_autoescape()
@@ -12,12 +12,10 @@ def add_dependencies(dependencies: list[str], group: str | None = None) -> None:
         cmd_list = ["uv", "add", "--group", f"{group}", *dependencies]
     else:
         cmd_list = ["uv", "add", *dependencies]
-    print(cmd_list)
     subprocess.run(cmd_list, check=False)
-    print(f"Successfully added {dependencies}")
 
 
-def copy_template(template_name: str, output_path: Path, **kwargs) -> None:
+def copy_template(template_name: str, output_path: Path, **kwargs: str) -> None:
     template = TEMPLATE_ENV.get_template(template_name)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
@@ -26,15 +24,13 @@ def copy_template(template_name: str, output_path: Path, **kwargs) -> None:
     )
 
 
-def uv_run(*args) -> None:
-    cmd_list = ["uv", "run", "--active"]
+def uv_run(*args: str) -> None:
+    cmd_list = ["uv", "run"]
     cmd_list.extend(args)
-    print(args)
-    subprocess.run(args, check=False)
-    print(f"Successfully ran {args}")
+    subprocess.run(cmd_list, check=False)
 
 
-def initialize_project(python_version: str | None = 3.12) -> None:
+def initialize_project(python_version: str | None = "3.12") -> None:
     # Setup project structure with uv
     subprocess.run(["uv", "--version"], check=False)
     subprocess.run(
@@ -50,7 +46,7 @@ def initialize_git() -> None:
     subprocess.run(cmd_list, check=False)
 
 
-def setup_testing(project_name) -> None:
+def setup_testing(project_name: str) -> None:
     test_dir = Path("tests")
     test_dir.mkdir(exist_ok=True)
     test_init = test_dir / "__init__.py"
@@ -81,7 +77,7 @@ def setup_interactivity() -> None:
     add_dependencies(["ipython"], "dev")
 
 
-def setup_precommit(project_name) -> None:
+def setup_precommit(project_name: str) -> None:
     add_dependencies(["pre-commit"], "dev")
     copy_template(
         ".pre-commit-config.txt",
@@ -103,7 +99,7 @@ def setup_precommit(project_name) -> None:
     uv_run("pre-commit", "run", "--all-files")
 
 
-def setup_deployment(project_name) -> None:
+def setup_deployment(project_name: str) -> None:
     output_path = Path(".github") / "workflows" / "python-deployment.yml"
     copy_template("python-package.txt", output_path, project_name=project_name)
     add_dependencies(["python-semantic-release"], "dev")
@@ -113,7 +109,7 @@ def setup_security() -> None:
     add_dependencies(["bandit"], "dev")
 
 
-def setup_recipes(project_name) -> None:
+def setup_recipes(project_name: str) -> None:
     copy_template("justfile.txt", Path("justfile"), project_name=project_name)
 
 
